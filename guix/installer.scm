@@ -33,10 +33,26 @@
   #:use-module (guix)
   #:export (installation-os-nonfree))
 
+(define my-linux-libre
+  ((@@ (gnu packages linux) make-linux-libre*)
+   (@@ (gnu packages linux) linux-libre-6.0-version)
+   (@@ (gnu packages linux) linux-libre-6.0-gnu-revision)
+   (@@ (gnu packages linux) linux-libre-6.0-source)
+   '("x86_64-linux")
+   #:configuration-file (@@ (gnu packages linux) kernel-config)
+   #:extra-options
+   (append
+    `(("CONFIG_MT7921E" . m))
+    (@@ (gnu packages linux) %default-extra-linux-options))))
+
+(define-public my-corrupt-linux
+  (corrupt-linux my-linux-libre "6.0.12"
+		 "00ag63lnxw2gijw3b6v29lhrlv480m12954q5zh4jawlz3nk1dw9"))
+
 (define installation-os-nonfree
   (operating-system
     (inherit installation-os)
-    (kernel linux)
+    (kernel my-corrupt-linux)
     (firmware (list linux-firmware))
 
     ;; Add the 'net.ifnames' argument to prevent network interfaces
